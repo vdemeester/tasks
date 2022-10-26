@@ -48,20 +48,20 @@ jobs:
           echo ${{ steps.changed-files.outputs.any_changed }}
           echo "List all the files that have changed: ${{ steps.changed-files-specific.outputs.all_changed_files }}"
       - name: Log in to the Container registry
-        if: steps.changed-files.outputs.any_changed == 'true' || ${{ github.event_name != 'pull_request' }}
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name != 'pull_request'
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
-        if: steps.changed-files.outputs.any_changed == 'true' || ${{ github.event_name != 'pull_request' }}
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name != 'pull_request'
         id: meta
         uses: docker/metadata-action@57396166ad8aefe6098280995947635806a0e6ea
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ matrix.image }}
       - name: Build and push Docker image
-        if: steps.changed-files.outputs.any_changed == 'true' || ${{ github.event_name != 'pull_request' }}
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event_name != 'pull_request'
         uses: docker/build-push-action@c56af957549030174b10d6867f20e78cfd7debc5
         with:
           context: images/${{ matrix.image }}
