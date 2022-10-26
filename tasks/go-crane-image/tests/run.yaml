@@ -48,14 +48,14 @@ spec:
       - name: image
         value:
           base: docker.io/library/alpine
-          prefix: quay.io/vdemeest/tests
+          prefix: registry.local:5000/go-rest-api-test
           labels: foo=bar;bar=baz
           envs: FOO=bar;BAR=baz
 ---
 apiVersion: tekton.dev/v1beta1
 kind: PipelineRun
 metadata:
-  name: golang-test-pipeline-run
+  name: go-crane-image-test-run
 spec:
   pipelineRef:
     name: go-crane-image-pipeline
