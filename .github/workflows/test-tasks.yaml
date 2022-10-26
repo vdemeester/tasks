@@ -11,6 +11,9 @@ name: test-tasks
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
     - uses: actions/checkout@v3
     - uses: actions/cache@v3
@@ -24,7 +27,7 @@ jobs:
     - uses: chainguard-dev/actions/setup-kind@main
       with:
         k8s-version: v1.23.x
-    - uses: vdemeester/setup-tektoncd@main
+    - uses: vdemeester/setup-tektoncd@mainx
       with:
         pipeline: v0.40.x
         pipeline-feature-flags: '{"enable-api-fields": "alpha"}'
