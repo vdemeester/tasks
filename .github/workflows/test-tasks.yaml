@@ -27,10 +27,25 @@ jobs:
     - uses: chainguard-dev/actions/setup-kind@main
       with:
         k8s-version: v1.23.x
-    - uses: vdemeester/setup-tektoncd@mainx
+    - uses: vdemeester/setup-tektoncd@main
       with:
         pipeline: v0.40.x
         pipeline-feature-flags: '{"enable-api-fields": "alpha"}'
-    - run: |
-        kubectl version
-        echo "TODO: have a script to run tests :D"
+    - name: run-tests
+      run: |
+        # FIXME: move this into setup-tektoncd
+        # curl -L https://github.com/tektoncd/cli/releases/download/v0.27.0/tkn_0.27.0_Linux_x86_64.tar.gz | tar zxf - -C /usr/local/bin
+        
+        kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-clone/0.7/git-clone.yaml
+        # go-crane-image
+        kubectl create -f ./tasks/go-crane-image/go-crane-image.yaml
+        kubectl create -f ./tasks/go-crane-image/tests/run.yaml
+
+        tkn pipelinerun logs -f go-crane-image-test-run
+        tkn pipelinerun describe go-crane-image-test-run
+
+        status=$(kubectl get pipelinerun/go-crane-image-test-run -w -o json | jq -r '.items[] | .status.conditions[] | select(.type == "Succeeded") | .status')
+        if [[ "${status}" != "True" ]]; then
+          echo "go-crane-image test failed"
+          kubectl get pipelinerun/go-crane-image-test-run -o yaml
+        fi
