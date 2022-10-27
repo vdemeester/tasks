@@ -33,9 +33,9 @@ jobs:
         tkn pipelinerun logs -f go-crane-image-test-run
         tkn pipelinerun describe go-crane-image-test-run
 
-        kubectl get pipelinerun go-crane-image-test-run -o json
-        status=$(kubectl get pipelinerun go-crane-image-test-run -o json | jq -r '.items[] | .status.conditions[] | select(.type == "Succeeded") | .status')
-        if [[ "${status}" != "True" ]]; then
-          echo "go-crane-image test failed"
-          kubectl get pipelinerun/go-crane-image-test-run -o yaml
-        fi
+        kubectl get pipelinerun go-crane-image-test-run
+        #status=$(kubectl get pipelinerun go-crane-image-test-run -o json | jq -r '.items[] | .status.conditions[] | select(.type == "Succeeded") | .status')
+        #if [[ "${status}" != "True" ]]; then
+        #  echo "go-crane-image test failed"
+        #  kubectl get pipelinerun/go-crane-image-test-run -o yaml
+        #fi
