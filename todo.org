@@ -1,0 +1,40 @@
+#+TITLE: Vincent Demeester's Tasks
+
+* Tasks
+
+** TODO [#A] =go-ko-image=
+
+Or =ko-image= ? I am fuzzy with the name..
+
+** TODO [#A] Node to image
+
+** TODO [#B] Java to image
+
+** TODO [#B] Rust to image
+
+** TODO [#B] Python to image
+
+** TODO [#B] Nix based tasks
+
+Need to dig a bit more in there
+
+** TODO [#C] Ruby to image
+
+* Tests
+** TODO Create a e2e tests tooling
+
+Maybe go, either here or extracted, maybe even in catlin ?
+The idea is to make it easy to run tests locally as well as on the CI with the same commands.
+
+** TODO Have a non-request buildkit-tekton/tkn-local set of tests
+
+The idea is to run tasks for thoses and check which one fails
+
+** TODO Try to also run tests those on CRC
+
+* Misc
+
+** TODO Generate tasks / layout from higher language
+
+One idea is to be able to generate most of the content from a higher language. Not sure if
+it make sense still, but
