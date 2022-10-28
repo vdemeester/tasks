@@ -8,7 +8,7 @@ metadata:
     tekton.dev/pipelines.minVersion: "0.40.0"
     tekton.dev/categories: language
     tekton.dev/tags: go
-    tekton.dev/displayName: "go container image"
+    tekton.dev/displayName: "go crane image"
     tekton.dev/platforms: "linux/amd64,linux/s390x,linux/ppc64le,linux/arm64"
 spec:
   description: >-
@@ -40,11 +40,13 @@ spec:
       envs: {type: string}
       push: {type: string}
       prefix: {type: string}
+      tag: {type: string}
     default:
       base: ""
       labels: ""
       envs: ""
       push: "true"
+      tag: "latest"
   - name: go
     description: >-
       Golang options, such as flags, version, …
@@ -73,6 +75,7 @@ spec:
     script: |
       #!/usr/bin/env bash
       set -e
+      go env
       go build -o $(params.app) $(params.package)
     env:
     - name: GOFLAGS
@@ -117,12 +120,12 @@ spec:
         fi
       fi
 
-      APPEND_FLAGS="--new_tag $(params.image.prefix)/$(params.app)"
+      APPEND_FLAGS="--new_tag $(params.image.prefix)/$(params.app):$(params.image.tag)"
       if [[ -n "$(params.image.base)" ]]; then
         APPEND_FLAGS="--base $(params.image.base) ${APPEND_FLAGS}"
       fi
 
-      MUTATE_FLAGS="--entrypoint=/$(params.app) --tag $(params.image.prefix)/$(params.app)"
+      MUTATE_FLAGS="--entrypoint=/$(params.app) --tag $(params.image.prefix)/$(params.app):$(params.image.tag)"
       # envs
       while IFS=';' read -ra ENVS; do
       for ENV in "${ENVS[@]}"; do
@@ -133,7 +136,7 @@ spec:
       # labels
       while IFS=';' read -ra LABELS; do
       for LABEL in "${LABELS[@]}"; do
-        MUTATE_FLAGS="${MUTATE_FLAGS} --env ${LABEL}"
+        MUTATE_FLAGS="${MUTATE_FLAGS} --label ${LABEL}"
       done
       done <<< "$(params.image.labels)"
 
