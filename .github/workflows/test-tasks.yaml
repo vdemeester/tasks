@@ -48,3 +48,52 @@ jobs:
         tkn pipelinerun describe go-ko-image-test-run
 
         kubectl get pipelinerun go-ko-image-test-run
+
+  test-crc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: microshift
+      run: |
+        # Start up the cluster
+        docker run -d --rm --name microshift --privileged -v microshift-data:/var/lib -p 6443:6443 quay.io/microshift/microshift-aio:latest
+        # Copy the kubeconfig from the microshift container so we can use local tooling to interact with it.
+        KUBECONFIG=$(mktemp -t kubeconfig.XXXXX) && docker cp microshift:/var/lib/microshift/resources/kubeadmin/kubeconfig $KUBECONFIG && sudo chown `whoami`: $KUBECONFIG && chmod og-rwx $KUBECONFIG
+ 
+        # Wait a bit until the cluster comes up. Use the command below to check the progress
+        # of resources being created
+        oc get all -A
+ 
+        # Be sure to check if DNS is up and running as this may cause odd DNS lookup issues
+        # Sometimes this may take over 10 minutes to start
+        oc -n openshift-dns get pods
+ 
+        # Set a default storage class to make things easier later on:
+        # https://docs.openshift.com/container-platform/4.9/post_installation_configuration/storage-configuration.html#change-default-storage-class_post-install-storage-configuration
+        oc patch storageclass kubevirt-hostpath-provisioner -p \
+          '{"metadata": {"annotations": {"storageclass.kubernetes.io/is-default-class": "true"}}}'
+ 
+        # Install Tekton with a Subscription resource doesn't work :(
+        # Install Tekton from upstream: https://tekton.dev/docs/pipelines/install/
+        oc new-project tekton-pipelines
+        oc adm policy add-scc-to-user anyuid -z tekton-pipelines-controller
+        oc adm policy add-scc-to-user anyuid -z tekton-pipelines-webhook
+        oc apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.notags.yaml
+        # Wait for all pods to start - may take a few minutes
+        oc wait --for=condition=Ready --timeout=5m pod --all -n tekton-pipelines
+    # - name: install crc
+    #   env:
+    #     CRC_PULL_SECRET: ${{ secrets.CRC_PULL_SECRET }}
+    #   run: |
+    #     sudo apt install -y qemu-kvm libvirt-daemon libvirt-daemon-system network-manager
+    #     wget https://developers.redhat.com/content-gateway/rest/mirror/pub/openshift-v4/clients/crc/latest/crc-linux-amd64.tar.xz
+    #     tar xvJf crc-linux-amd64.tar.xz
+    #     mv crc-*/crc /usr/local/bin
+    #     chmod +x /usr/local/bin/crc
+    #     crc config --help
+    #     crc config set consent-telemetry no
+    #     crc setup
+
