@@ -2,7 +2,7 @@
 
 * Tasks
 
-** TODO [#A] =go-ko-image=
+** NEXT [#A] =go-ko-image=
 
 Or =ko-image= ? I am fuzzy with the name..
 
