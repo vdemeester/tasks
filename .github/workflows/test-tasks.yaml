@@ -39,3 +39,12 @@ jobs:
         #  echo "go-crane-image test failed"
         #  kubectl get pipelinerun/go-crane-image-test-run -o yaml
         #fi
+
+        # go-ko-image
+        kubectl create -f ./tasks/go-ko-image/go-ko-image.yaml
+        kubectl create -f ./tasks/go-ko-image/tests/run.yaml
+
+        tkn pipelinerun logs -f go-ko-image-test-run
+        tkn pipelinerun describe go-ko-image-test-run
+
+        kubectl get pipelinerun go-ko-image-test-run
