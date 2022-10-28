@@ -2,7 +2,11 @@
 
 * Tasks
 
-** NEXT [#A] =go-ko-image=
+** DONE [#A] =go-ko-image=
+CLOSED: [2022-10-28 Fri 13:48]
+:LOGBOOK:
+- State "DONE"       from "NEXT"       [2022-10-28 Fri 13:48]
+:END:
 
 Or =ko-image= ? I am fuzzy with the name..
 
