@@ -12,6 +12,15 @@ Or =ko-image= ? I am fuzzy with the name..
 
 ** TODO [#A] Node to image
 
+This is actually tricky to do…
+- Different commands to support =npm=, =yarn=, …
+- Different "targets"
+  + dist to nginx folder
+  + container doing =nodejs …=
+  + include the content into something else (see =tektoncd/dashboard=)
+
+This might actually be the job for several tasks.
+
 ** TODO [#B] Java to image
 
 ** TODO [#B] Rust to image

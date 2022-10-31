@@ -1,0 +1,66 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nodejs-crane-image-source-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: nodejs-crane-image-pipeline
+spec:
+  workspaces:
+    - name: shared-workspace
+  tasks:
+    - name: fetch-repository
+      taskRef:
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+      params:
+        - name: url
+          value: https://github.com/tektoncd/dashboard
+        - name: subdirectory
+          value: ""
+        - name: deleteExisting
+          value: "true"
+    - name: run-build
+      taskRef:
+        name: nodejs-crane-image
+      runAfter:
+        - fetch-repository
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      params:
+      - name: app
+        value: tektoncd-dashboard
+      - name: nodejs
+        value:
+          version: "16"
+      - name: image
+        value:
+          base: docker.io/library/nginx
+          # prefix: registry.local:5000/go-rest-api-test
+          prefix: quay.io/vdemeest/tests
+          labels: foo=bar;bar=baz
+          envs: FOO=bar;BAR=baz
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: nodejs-crane-image-test-run
+spec:
+  pipelineRef:
+    name: nodejs-crane-image-pipeline
+  workspaces:
+    - name: shared-workspace
+      persistentvolumeclaim:
+        claimName: nodejs-crane-image-source-pvc
